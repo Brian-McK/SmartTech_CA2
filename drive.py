@@ -1,0 +1,1 @@
+# this file will have websockets that allow us to send image from simulator to model, the model will then return the steering angle and throttle and then we can use autonomous mode to control the car in the simulator
