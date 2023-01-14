@@ -130,7 +130,7 @@ def random_augment(image_to_augment, steering_angle):
         augment_image = img_random_brightness(augment_image)
     if np.random.rand() < 0.5:
         augment_image, steering_angle = img_random_flip(augment_image, steering_angle)
-    return augment_image,
+    return augment_image, steering_angle
 
 
 # allow us to apply all the image augmentation, take in the raw image paths, returns a batch of images. We dont load them in until we need them. Only apply to training data.
@@ -154,7 +154,7 @@ def batch_generator(image_paths, steering_ang, batch_size, is_training):
 
 
 # data location from driving on track in each direction 3 times
-datadir = "C:\\Users\\loanej\\dev\\Smart Technologies\\beta_simulator_windows\\BCData"
+datadir = "/Users/brianmckenna/Documents/College/Software Development/Year_4/Smart_Technologies/SmartTech_CA2"
 columns = ['center', 'left', 'right', 'steering', 'throttle', 'reverse', 'speed']
 data = pd.read_csv(os.path.join(datadir, 'driving_log.csv'), names=columns)
 pd.set_option('display.max_columns', 7)
@@ -164,7 +164,7 @@ data['left'] = data['left'].apply(path_leaf)
 data['right'] = data['right'].apply(path_leaf)
 
 num_bins = 25
-samples_per_bin = 400
+samples_per_bin = 400 # play around with this (decrease)
 hist, bins = np.histogram(data['steering'], num_bins)
 centre = (bins[:-1] + bins[1:]) * 0.5
 plt.bar(centre, hist, width=0.05)
@@ -291,7 +291,9 @@ model = nvidia_model()
 print(model.summary())
 
 # batch generator instead of x-train, y-train, x-valid, y-valid. Generates 200 images as we need them.
-history = model.fit(batch_generator(X_train, y_train, 200, 1), steps_per_epoch=100, epochs=30, validation_data=batch_generator(X_valid, y_valid, 200, 0), validation_steps=200, verbose=1, shuffle=1)
+history = model.fit(batch_generator(X_train, y_train, 200, 1), steps_per_epoch=100, epochs=30,
+                    validation_data=batch_generator(X_valid, y_valid, 200, 0), validation_steps=200, verbose=1,
+                    shuffle=1)
 
 plt.plot(history.history['loss'])
 plt.plot(history.history['val_loss'])
@@ -301,4 +303,3 @@ plt.xlabel("Epoch")
 plt.show()
 
 model.save('model.h5')
-
