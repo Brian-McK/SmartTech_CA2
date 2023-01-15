@@ -195,48 +195,15 @@ datadir1 = "C:\\smart_techn\\test1"
 columns = ['center', 'left', 'right', 'steering', 'throttle', 'reverse', 'speed']
 df = pd.read_csv(os.path.join(datadir, 'driving_log.csv'), names = columns)
 data1 = pd.read_csv(os.path.join(datadir, 'driving_log.csv'), names = columns)
-print(data1)
+
 data2 = pd.read_csv(os.path.join(datadir1, 'driving_log.csv'), names = columns)
-print(data2)
-
-# csv_files = [os.path.join(datadir, 'driving_log.csv'), os.path.join(datadir1, 'driving_log.csv')]
-# concat_csvs = []
-
-# for filename in csv_files:
-#     df1 = pd.read_csv(filename, names=columns)
-#     concat_csvs.append(df1)
-# frame = pd.concat(concat_csvs,index=False, encoding='utf-8-sig')
-# frame.to_csv("C:\\smart_tech\\testing2.csv")
-# data3 = pd.read_csv(os.path.join(dir1, 'testing2.csv'), names = columns)
 
 
 data = pd.concat([data1, data2],ignore_index=True)
-# df_cd = pd.concat([data1, data2],axis=0,ignore_index=True)
-# data5 = df_cd
 
 pd.set_option('display.max_columns', 7)
 print(data)
-# print(data)
 
-# def load_steering_img(data_dir, data):
-#     image_path = []
-#     steering = []
-#     for i in range(len(data)):
-#         indexed_data = data.iloc[i]
-#         centre, left, right = indexed_data[0], indexed_data[1], indexed_data[2]
-#         image_path.append(os.path.join(data_dir, centre.strip()))
-#         steering.append(float(indexed_data[3]))
-#         image_path.append(os.path.join(data_dir, left.strip()))
-#         steering.append(float(indexed_data[3]) + 0.15)
-#         image_path.append(os.path.join(data_dir, right.strip()))
-#         steering.append(float(indexed_data[3]) - 0.15)
-#     image_paths = np.asarray(image_path)
-#     steerings = np.asarray(steering)
-#     return image_paths, steerings
-
-
-# for filename in os.listdir(dir):
-#     print("file", filename)
 def load_steering1_img(data_dir, df):
     images_path = []
     steering = []
@@ -261,22 +228,6 @@ def load_steering1_img(data_dir, df):
     steerings = np.asarray(steering)
     return images_paths, steerings
 
-# def load_images(dir):
-#     images = []
-#     for filename in os.listdir(dir):
-#         data_path = os.path.join(dir + '\\' + filename + '\\IMG')
-#         print(data_path)
-#         onlyfiles = [f for f in os.listdir(data_path) if isfile(join(data_path, f))]
-#         for n in range(0, len(onlyfiles)):
-#             images.append(cv2.imread(join(data_path, onlyfiles[n])))
-#     image_arr = np.array(images)
-#     return image_arr
-#
-#
-# print(load_images(dir).shape)
-# for filename in os.listdir(dir):
-#     print(filename)
-print(load_steering1_img(dir, df))
 
 data['center'] = data['center'].apply(path_leaf)
 data['left'] = data['left'].apply(path_leaf)
@@ -312,26 +263,6 @@ plt.plot((np.min(data['steering']), np.max(data['steering'])), (samples_per_bin,
 plt.show()
 
 image_paths, steerings = load_steering1_img(dir, data)
-# count = 0
-# count1 = 0
-# for j in steerings:
-#     print(j)
-# image_arr = []
-# steer_arr = []
-# for i in image_path:
-#     if os.path.exists(i):
-#         image_arr.append(i)
-#         count += 1
-#         for j in steerings:
-#            count1 +=1
-#
-#
-#
-# print(count)
-# print(count1)
-#
-# image_paths = np.asarray(image_arr)
-from pathlib import Path
 
 X_train, X_valid, y_train, y_valid = train_test_split(image_paths, steerings, test_size=0.2, random_state=6)
 print(f"Training samples {len(X_train)}\n Validation samples {len(X_valid)}")
@@ -354,13 +285,6 @@ axes[1].imshow(preprocessed_image)
 axes[1].set_title("Preprocessed image")
 plt.show()
 
-#X_train = np.array(list(map(preprocess_img, X_train)))
-#X_valid = np.array(list(map(preprocess_img, X_valid)))
-
-# plt.imshow(X_train[random.randint(0, len(X_train)-1)])
-# plt.axis('off')
-# plt.show()
-# print(X_train.shape)
 
 image = image_paths[random.randint(0, 1000)]
 original_image = mpimg.imread(image)
@@ -424,9 +348,8 @@ for i in range(30):
     axs[i][1].imshow(augmented_image)
     axs[i][1].set_title("Augmented Image")
 plt.show()
-import argparse
-model = nvidia_model()
 
+model = nvidia_model()
 print(model.summary())
 
 history = model.fit(batch_generator(X_train, y_train, 200, 1), steps_per_epoch=100, epochs=25, validation_data=batch_generator(X_valid, y_valid, 200, 0), validation_steps=200, verbose=1, shuffle=1)
