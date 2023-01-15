@@ -52,7 +52,7 @@ def preprocess_img(img):
     img = img[60:135, :, :]
     img = cv2.cvtColor(img, cv2.COLOR_RGB2YUV)
     img = cv2.GaussianBlur(img, (3, 3), 0)
-    img = cv2.resize(img, (66, 200))
+    img = cv2.resize(img, (100, 100))
     img = img/255
     return img
 
@@ -61,14 +61,14 @@ def preprocess_img_no_imread(img):
     img = img[60:135, :, :]
     img = cv2.cvtColor(img, cv2.COLOR_RGB2YUV)
     img = cv2.GaussianBlur(img, (3, 3), 0)
-    img = cv2.resize(img, (66, 200))
+    img = cv2.resize(img, (100, 100))
     img = img/255
     return img
 
 
 def nvidia_model():
     model = Sequential()
-    model.add(Convolution2D(24, (5, 5), strides=(2, 2), input_shape=(66, 200, 3), activation='elu'))
+    model.add(Convolution2D(24, (5, 5), strides=(2, 2), input_shape=(100, 100, 3), activation='elu'))
     model.add(Convolution2D(36, (5, 5), strides=(2, 2), activation='elu'))
     model.add(Convolution2D(48, (5, 5), strides=(2, 2), activation='elu'))
     model.add(Convolution2D(64, (3, 3), activation='elu'))
