@@ -198,20 +198,24 @@ print(data1)
 data2 = pd.read_csv(os.path.join(datadir1, 'driving_log.csv'), names = columns)
 print(data2)
 
-csv_files = [os.path.join(datadir, 'driving_log.csv'), os.path.join(datadir1, 'driving_log.csv')]
-concat_csvs = []
+# csv_files = [os.path.join(datadir, 'driving_log.csv'), os.path.join(datadir1, 'driving_log.csv')]
+# concat_csvs = []
 
-for filename in csv_files:
-    df1 = pd.read_csv(filename, names=columns)
-    concat_csvs.append(df1)
-frame = pd.concat(concat_csvs,join='inner', ignore_index=True)
+# for filename in csv_files:
+#     df1 = pd.read_csv(filename, names=columns)
+#     concat_csvs.append(df1)
+# frame = pd.concat(concat_csvs,index=False, encoding='utf-8-sig')
 # frame.to_csv("C:\\smart_tech\\testing2.csv")
-data3 = pd.read_csv(os.path.join(dir1, 'testing2.csv'), names = columns)
+# data3 = pd.read_csv(os.path.join(dir1, 'testing2.csv'), names = columns)
 
 
-data = pd.concat([data1, data2],join='inner',ignore_index=True)
+data = pd.concat([data1, data2],ignore_index=True)
+# df_cd = pd.concat([data1, data2],axis=0,ignore_index=True)
+# data5 = df_cd
+
 pd.set_option('display.max_columns', 7)
 print(data)
+# print(data)
 
 # def load_steering_img(data_dir, data):
 #     image_path = []
