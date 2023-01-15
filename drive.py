@@ -24,6 +24,8 @@ def preprocess_img(img):
     return img
 
 
+
+
 def send_control(steering_angle, throttle):
     sio.emit('steer', data={'steering_angle':steering_angle.__str__(), 'throttle':throttle.__str__()})
 

@@ -1,3 +1,6 @@
+import glob
+from os.path import isfile, join
+
 import numpy as np
 import matplotlib.pyplot as plt
 import keras
@@ -40,21 +43,7 @@ def path_leaf(path):
     return tail
 
 
-def load_steering_img(data_dir, df):
-    image_path = []
-    steering = []
-    for i in range(len(df)):
-        indexed_data = data.iloc[i]
-        centre, left, right = indexed_data[0], indexed_data[1], indexed_data[2]
-        image_path.append(os.path.join(data_dir, centre.strip()))
-        steering.append(float(indexed_data[3]))
-        image_path.append(os.path.join(data_dir, left.strip()))
-        steering.append(float(indexed_data[3]) + 0.15)
-        image_path.append(os.path.join(data_dir, right.strip()))
-        steering.append(float(indexed_data[3]) - 0.15)
-    image_paths = np.asarray(image_path)
-    steerings = np.asarray(steering)
-    return image_paths, steerings
+
 
 
 def preprocess_img(img):
@@ -92,7 +81,7 @@ def nvidia_model():
     model.add(Dense(10, activation='elu'))
     #model.add(Dropout(0.5))
     model.add(Dense(1))
-    optimizer = Adam(learning_rate=0.0001)
+    optimizer = Adam(learning_rate=0.00001)
     model.compile(loss='mse', optimizer=optimizer)
     return model
 
@@ -109,14 +98,15 @@ def pan(image_to_pan):
     return pan_image
 
 
-def img_random_brightness(image_to_brighten):
-    bright_func = iaa.Multiply((0.2, 1.2))
-    bright_image = bright_func.augment_image(image_to_brighten).astype("uint8")
+def img_brightness(image_to_brighten):
+    hsv = cv2.cvtColor(image_to_brighten, cv2.COLOR_RGB2HSV)
+    ratio = 1.0 + 0.4 * (np.random.rand() - 0.5)
+    hsv[:, :, 2] = hsv[:, :, 2] * ratio
+    bright_image = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
     return bright_image
 
 
 def img_random_flip(image_to_flip, steering_angle):
-    # 0 - flip horizontal, 1 flip vertical, -1 combo of both
     flipped_image = cv2.flip(image_to_flip, 1)
     steering_angle = -steering_angle
     return flipped_image, steering_angle
@@ -129,7 +119,7 @@ def random_augment(image_to_augment, steering_angle):
     if np.random.rand() < 0.5:
         augment_image = pan(augment_image)
     if np.random.rand() < 0.5:
-        augment_image = img_random_brightness(augment_image)
+        augment_image = img_brightness(augment_image)
     if np.random.rand() < 0.5:
         augment_image, steering_angle = img_random_flip(augment_image, steering_angle)
     return augment_image, steering_angle
@@ -152,11 +142,92 @@ def batch_generator(image_paths, steering_ang, batch_size, is_training):
             batch_steering.append(steering)
         yield np.asarray(batch_img), np.asarray(batch_steering)
 
+dir = "C:\\smart_techn"
+dir1 = "C:\\smart_tech"
+datadir = "C:\\smart_techn\\mountain2"
+datadir1 = "C:\\smart_techn\\test1"
 
-datadir = "C:\\smart_tech\\test1"
 columns = ['center', 'left', 'right', 'steering', 'throttle', 'reverse', 'speed']
-data = pd.read_csv(os.path.join(datadir, 'driving_log.csv'), names = columns)
+df = pd.read_csv(os.path.join(datadir, 'driving_log.csv'), names = columns)
+data1 = pd.read_csv(os.path.join(datadir, 'driving_log.csv'), names = columns)
+print(data1)
+data2 = pd.read_csv(os.path.join(datadir1, 'driving_log.csv'), names = columns)
+print(data2)
+
+csv_files = [os.path.join(datadir, 'driving_log.csv'), os.path.join(datadir1, 'driving_log.csv')]
+concat_csvs = []
+
+for filename in csv_files:
+    df1 = pd.read_csv(filename, names=columns)
+    concat_csvs.append(df1)
+frame = pd.concat(concat_csvs,join='inner', ignore_index=True)
+# frame.to_csv("C:\\smart_tech\\testing2.csv")
+data3 = pd.read_csv(os.path.join(dir1, 'testing2.csv'), names = columns)
+
+
+data = pd.concat([data1, data2],join='inner',ignore_index=True)
 pd.set_option('display.max_columns', 7)
+print(data)
+
+# def load_steering_img(data_dir, data):
+#     image_path = []
+#     steering = []
+#     for i in range(len(data)):
+#         indexed_data = data.iloc[i]
+#         centre, left, right = indexed_data[0], indexed_data[1], indexed_data[2]
+#         image_path.append(os.path.join(data_dir, centre.strip()))
+#         steering.append(float(indexed_data[3]))
+#         image_path.append(os.path.join(data_dir, left.strip()))
+#         steering.append(float(indexed_data[3]) + 0.15)
+#         image_path.append(os.path.join(data_dir, right.strip()))
+#         steering.append(float(indexed_data[3]) - 0.15)
+#     image_paths = np.asarray(image_path)
+#     steerings = np.asarray(steering)
+#     return image_paths, steerings
+
+
+# for filename in os.listdir(dir):
+#     print("file", filename)
+def load_steering1_img(data_dir, df):
+    images_path = []
+    steering = []
+    for filename in os.listdir(data_dir):
+        data_path = os.path.join(data_dir + '\\' + filename + '\\IMG')
+        for i in range(len(df)):
+            indexed_data = df.iloc[i]
+            centre, left, right = indexed_data[0], indexed_data[1], indexed_data[2]
+            if os.path.exists(os.path.join(data_path, centre.strip())):
+                images_path.append(os.path.join(data_path, centre.strip()))
+                steering.append(float(indexed_data[3]))
+
+            if os.path.exists(os.path.join(data_path, left.strip())):
+                images_path.append(os.path.join(data_path, left.strip()))
+                steering.append(float(indexed_data[3]) + 0.15)
+
+            if os.path.exists(os.path.join(data_path, right.strip())):
+                images_path.append(os.path.join(data_path, right.strip()))
+                steering.append(float(indexed_data[3]) - 0.15)
+
+    images_paths = np.asarray(images_path)
+    steerings = np.asarray(steering)
+    return images_paths, steerings
+
+# def load_images(dir):
+#     images = []
+#     for filename in os.listdir(dir):
+#         data_path = os.path.join(dir + '\\' + filename + '\\IMG')
+#         print(data_path)
+#         onlyfiles = [f for f in os.listdir(data_path) if isfile(join(data_path, f))]
+#         for n in range(0, len(onlyfiles)):
+#             images.append(cv2.imread(join(data_path, onlyfiles[n])))
+#     image_arr = np.array(images)
+#     return image_arr
+#
+#
+# print(load_images(dir).shape)
+# for filename in os.listdir(dir):
+#     print(filename)
+print(load_steering1_img(dir, df))
 
 data['center'] = data['center'].apply(path_leaf)
 data['left'] = data['left'].apply(path_leaf)
@@ -191,7 +262,28 @@ plt.bar(centre, hist, width=0.05)
 plt.plot((np.min(data['steering']), np.max(data['steering'])), (samples_per_bin, samples_per_bin))
 plt.show()
 
-image_paths, steerings = load_steering_img(datadir+'/IMG', data)
+image_paths, steerings = load_steering1_img(dir, data)
+# count = 0
+# count1 = 0
+# for j in steerings:
+#     print(j)
+# image_arr = []
+# steer_arr = []
+# for i in image_path:
+#     if os.path.exists(i):
+#         image_arr.append(i)
+#         count += 1
+#         for j in steerings:
+#            count1 +=1
+#
+#
+#
+# print(count)
+# print(count1)
+#
+# image_paths = np.asarray(image_arr)
+from pathlib import Path
+
 X_train, X_valid, y_train, y_valid = train_test_split(image_paths, steerings, test_size=0.2, random_state=6)
 print(f"Training samples {len(X_train)}\n Validation samples {len(X_valid)}")
 
@@ -245,7 +337,7 @@ plt.show()
 
 image = image_paths[random.randint(0, 1000)]
 original_image = mpimg.imread(image)
-bright_image = img_random_brightness(original_image)
+bright_image = img_brightness(original_image)
 fig, axs = plt.subplots(1, 2, figsize=(15, 10))
 fig.tight_layout()
 axs[0].imshow(original_image)
@@ -271,6 +363,7 @@ ncols = 2
 nrows = 10
 fig, axs = plt.subplots(nrows, ncols, figsize=(15, 50))
 fig.tight_layout()
+print(len(image_paths))
 for i in range(10):
     rand_num = random.randint(0, len(image_paths) - 1)
     random_image = image_paths[rand_num]
@@ -286,7 +379,7 @@ plt.show()
 model = nvidia_model()
 print(model.summary())
 
-history = model.fit(batch_generator(X_train, y_train, 200, 1), steps_per_epoch=200, epochs=50, validation_data=batch_generator(X_valid, y_valid, 200, 0), validation_steps=200, verbose=1, shuffle=1)
+history = model.fit(batch_generator(X_train, y_train, 200, 1), steps_per_epoch=100, epochs=10, validation_data=batch_generator(X_valid, y_valid, 200, 0), validation_steps=200, verbose=1, shuffle=1)
 
 plt.plot(history.history['loss'])
 plt.plot(history.history['val_loss'])
