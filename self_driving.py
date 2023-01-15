@@ -4,6 +4,7 @@ from os.path import isfile, join
 import numpy as np
 import matplotlib.pyplot as plt
 import keras
+from keras.callbacks import ModelCheckpoint
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
@@ -51,7 +52,7 @@ def preprocess_img(img):
     img = img[60:135, :, :]
     img = cv2.cvtColor(img, cv2.COLOR_RGB2YUV)
     img = cv2.GaussianBlur(img, (3, 3), 0)
-    img = cv2.resize(img, (100, 100))
+    img = cv2.resize(img, (66, 200))
     img = img/255
     return img
 
@@ -60,14 +61,14 @@ def preprocess_img_no_imread(img):
     img = img[60:135, :, :]
     img = cv2.cvtColor(img, cv2.COLOR_RGB2YUV)
     img = cv2.GaussianBlur(img, (3, 3), 0)
-    img = cv2.resize(img, (100, 100))
+    img = cv2.resize(img, (66, 200))
     img = img/255
     return img
 
 
 def nvidia_model():
     model = Sequential()
-    model.add(Convolution2D(24, (5, 5), strides=(2, 2), input_shape=(100, 100, 3), activation='elu'))
+    model.add(Convolution2D(24, (5, 5), strides=(2, 2), input_shape=(66, 200, 3), activation='elu'))
     model.add(Convolution2D(36, (5, 5), strides=(2, 2), activation='elu'))
     model.add(Convolution2D(48, (5, 5), strides=(2, 2), activation='elu'))
     model.add(Convolution2D(64, (3, 3), activation='elu'))
@@ -82,7 +83,7 @@ def nvidia_model():
     #model.add(Dropout(0.5))
     model.add(Dense(1))
     optimizer = Adam(learning_rate=0.001)
-    model.compile(loss='mse', optimizer=optimizer)
+    model.compile(loss='mean_squared_error', optimizer=optimizer)
     return model
 
 
@@ -408,11 +409,11 @@ axs[1].set_title("Flipped Image"+ "Steering Angle: " + str(flipped_angle))
 plt.show()
 
 ncols = 2
-nrows = 10
+nrows = 30
 fig, axs = plt.subplots(nrows, ncols, figsize=(15, 50))
 fig.tight_layout()
 print(len(image_paths))
-for i in range(10):
+for i in range(30):
     rand_num = random.randint(0, len(image_paths) - 1)
     random_image = image_paths[rand_num]
     random_steering = steerings[rand_num]
@@ -423,8 +424,9 @@ for i in range(10):
     axs[i][1].imshow(augmented_image)
     axs[i][1].set_title("Augmented Image")
 plt.show()
-
+import argparse
 model = nvidia_model()
+
 print(model.summary())
 
 history = model.fit(batch_generator(X_train, y_train, 200, 1), steps_per_epoch=100, epochs=10, validation_data=batch_generator(X_valid, y_valid, 200, 0), validation_steps=200, verbose=1, shuffle=1)
