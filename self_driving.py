@@ -82,7 +82,7 @@ def nvidia_model():
     model.add(Dense(10, activation='elu'))
     #model.add(Dropout(0.5))
     model.add(Dense(1))
-    optimizer = Adam(learning_rate=0.0001)
+    optimizer = Adam(learning_rate=0.001)
     model.compile(loss='mean_squared_error', optimizer=optimizer)
     return model
 
@@ -429,7 +429,7 @@ model = nvidia_model()
 
 print(model.summary())
 
-history = model.fit(batch_generator(X_train, y_train, 200, 1), steps_per_epoch=100, epochs=10, validation_data=batch_generator(X_valid, y_valid, 200, 0), validation_steps=200, verbose=1, shuffle=1)
+history = model.fit(batch_generator(X_train, y_train, 200, 1), steps_per_epoch=100, epochs=25, validation_data=batch_generator(X_valid, y_valid, 200, 0), validation_steps=200, verbose=1, shuffle=1)
 
 plt.plot(history.history['loss'])
 plt.plot(history.history['val_loss'])
