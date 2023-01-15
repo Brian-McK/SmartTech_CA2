@@ -81,7 +81,7 @@ def nvidia_model():
     model.add(Dense(10, activation='elu'))
     #model.add(Dropout(0.5))
     model.add(Dense(1))
-    optimizer = Adam(learning_rate=0.00001)
+    optimizer = Adam(learning_rate=0.001)
     model.compile(loss='mse', optimizer=optimizer)
     return model
 
