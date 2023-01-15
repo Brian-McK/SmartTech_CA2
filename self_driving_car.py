@@ -74,11 +74,11 @@ def preprocess_img_no_imread(img):
 
 def nvidia_model():
     model = Sequential()
-    model.add(Convolution2D(24, (5, 5), strides=(2, 2), input_shape=(66, 200, 3), activation='elu'))
+    model.add(Convolution2D(24, (5, 5), strides=(2, 2), input_shape=(66, 200, 3), activation='relu'))
     model.add(Convolution2D(36, (5, 5), strides=(2, 2), activation='relu'))
     model.add(Convolution2D(48, (5, 5), strides=(2, 2), activation='relu'))
-    model.add(Convolution2D(64, (3, 3), activation='elu'))
-    model.add(Convolution2D(64, (3, 3), activation='elu'))
+    model.add(Convolution2D(64, (3, 3), activation='relu'))
+    model.add(Convolution2D(64, (3, 3), activation='relu'))
     # model.add(Dropout(0.5))
     model.add(Flatten())
     model.add(Dense(100, activation='elu'))
@@ -88,7 +88,7 @@ def nvidia_model():
     model.add(Dense(10, activation='elu'))
     # model.add(Dropout(0.5))
     model.add(Dense(1))
-    optimizer = Adam(learning_rate=0.0001)
+    optimizer = Adam(learning_rate=0.1)
     model.compile(loss='mse', optimizer=optimizer)
     return model
 
@@ -164,7 +164,7 @@ data['left'] = data['left'].apply(path_leaf)
 data['right'] = data['right'].apply(path_leaf)
 
 num_bins = 25
-samples_per_bin = 400 # play around with this (decrease)
+samples_per_bin = 200  # play around with this (decrease)
 hist, bins = np.histogram(data['steering'], num_bins)
 centre = (bins[:-1] + bins[1:]) * 0.5
 plt.bar(centre, hist, width=0.05)
@@ -291,7 +291,7 @@ model = nvidia_model()
 print(model.summary())
 
 # batch generator instead of x-train, y-train, x-valid, y-valid. Generates 200 images as we need them.
-history = model.fit(batch_generator(X_train, y_train, 200, 1), steps_per_epoch=100, epochs=20,
+history = model.fit(batch_generator(X_train, y_train, 100, 1), steps_per_epoch=200, epochs=20,
                     validation_data=batch_generator(X_valid, y_valid, 200, 0), validation_steps=200, verbose=1,
                     shuffle=1)
 
