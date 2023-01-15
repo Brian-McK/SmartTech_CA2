@@ -291,7 +291,7 @@ model = nvidia_model()
 print(model.summary())
 
 # batch generator instead of x-train, y-train, x-valid, y-valid. Generates 200 images as we need them.
-history = model.fit(batch_generator(X_train, y_train, 200, 1), steps_per_epoch=100, epochs=30,
+history = model.fit(batch_generator(X_train, y_train, 200, 1), steps_per_epoch=100, epochs=20,
                     validation_data=batch_generator(X_valid, y_valid, 200, 0), validation_steps=200, verbose=1,
                     shuffle=1)
 
