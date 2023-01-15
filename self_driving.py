@@ -156,10 +156,12 @@ def random_augment(image_to_augment, steering_angle):
     range_y = 10
     if np.random.rand() < 0.5:
         augment_image = random_translate(image_to_augment, steering_angle,range_x,range_y)
-    # if np.random.rand() < 0.5:
-    #     augment_image = zoom(augment_image)
-    # if np.random.rand() < 0.5:
-    #     augment_image = pan(augment_image)
+    if np.random.rand() < 0.5:
+        augment_image = random_shadow(augment_image)
+    if np.random.rand() < 0.5:
+        augment_image = zoom(augment_image)
+    if np.random.rand() < 0.5:
+        augment_image = pan(augment_image)
     if np.random.rand() < 0.5:
         augment_image = img_brightness(augment_image)
     if np.random.rand() < 0.5:
